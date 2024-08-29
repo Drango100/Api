@@ -5,7 +5,7 @@ from django.http.response import HttpResponse as HttpResponse
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, JsonResponse
-from .models import Clientes
+from .models import Clientes, Producto
 import json
 
 class ClientesView(View):
@@ -76,4 +76,75 @@ class ClientesView(View):
         
         else:
             datos = {'message': "cliente no encontrado"}
+        return JsonResponse(datos)
+
+class ProductoView(View):
+    @method_decorator(csrf_exempt)
+    
+    def dispatch(self, request , *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+   
+    def get(self, request,id=0):
+        if(id>0):
+            Producto_list=list(Producto.objects.filter(id=id).values())
+            if len(Producto_list) > 0:
+                Producto=Producto_list[0]
+                datos = {'message': "success", 'cliente': Producto}
+            else:
+                datos = {'message': "clientes no encontrados"}
+            return JsonResponse(datos)
+        else:
+            Producto_list = list(Producto.objects.values())  
+        if len(Producto_list) > 0:  
+            datos = {'message': "success", 'cliente': Producto_list}
+        else:
+            datos = {'message': "clientes no encontrados"}
+        return JsonResponse(datos)
+    
+    def post(self, request):
+        #print(request.body)
+        jd=json.loads(request.body)
+        #print(jd)
+        Producto.objects.create(
+            nombre_producto=jd['nombre_producto'],
+            can_maxima=jd['can_maxima'],
+            can_minima=jd['can_minima'], 
+            valor_producto=jd['valor_producto'],
+            iva_producto=jd['iva_producto'],
+            descu_producto=jd['descu_producto'],
+            ubi_producto=jd['ubi_producto']
+            )
+        datos = {'message': "success"}
+        return JsonResponse(datos)
+    
+    def put(self, request, id):
+        # Decodificar el cuerpo de la solicitud
+        jd = json.loads(request.body)
+        
+        try:
+            producto = Producto.objects.get(id=id)
+            
+            producto.nombre_producto = jd.get('nombre_producto', producto.nombre_producto)
+            producto.can_maxima = jd.get('can_maxima', producto.can_maxima)
+            producto.can_minima = jd.get('can_minima', producto.can_minima)
+            producto.valor_producto = jd.get('valor_producto', producto.valor_producto)
+            producto.iva_producto = jd.get('iva_producto', producto.iva_producto)
+            producto.descu_producto = jd.get('descu_producto', producto.descu_producto)
+            
+            producto.save()
+            
+            datos = {'message': "success"}
+        except Producto.DoesNotExist:
+            datos = {'message': "Producto no encontrado"}
+        
+        return JsonResponse(datos)
+    
+    def delete(self, request,id):
+        Producto_list=list(Producto.objects.filter(id=id).values())
+        if len(Producto_list) > 0:
+            Producto.objects.filter(id=id).delete()
+            datos = {'message': "success"}
+        
+        else:
+            datos = {'message': "Producto no encontrado"}
         return JsonResponse(datos)
