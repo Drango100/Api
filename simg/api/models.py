@@ -20,3 +20,21 @@ class Producto(models.Model):
     ubi_producto= models.CharField(max_length=4)
     def _str_(self):
         return self.nombre_producto
+
+class Marca(models.Model):
+    nombre_marca= models.CharField(max_length=100)
+   
+    def _str_(self):
+        return self.nombre_marca
+
+class Medida(models.Model):
+    descr_medida= models.CharField(max_length=200)
+   
+    def _str_(self):
+        return self.descr_medida
+
+class Categoria(models.Model):
+    nombre_categoria= models.CharField(max_length=100)
+   
+    def _str_(self):
+        return self.nombre_categoria
